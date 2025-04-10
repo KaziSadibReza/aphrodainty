@@ -54,7 +54,7 @@ function custom_override_checkout_fields($fields) {
         'class'     => array('form-row-wide', 'delivery-field'),
         'clear'     => true,
         'options'   => array(
-            '' => __('Select a Village', 'woocommerce')
+            'not_selected' => __('Select a Village', 'woocommerce')
         )
     );
 

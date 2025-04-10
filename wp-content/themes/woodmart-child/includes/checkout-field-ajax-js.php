@@ -63,7 +63,7 @@ jQuery(document).ready(function($) {
                 success: function(response) {
                     village_select.empty();
                     village_select.append($('<option>', {
-                        value: '',
+                        value: 'not_selected',
                         text: 'Select a Village'
                     }));
 

@@ -22,6 +22,11 @@ include_once 'includes/checkout-field-ajax-js.php';
  */
 include_once 'includes/add_checkout_fields.php';
 
+/**
+ * @since 1.0.0
+ * include all error handler for checkout fields
+ */
+include_once 'includes/chackout-error-handler.php';
 
 add_filter('woocommerce_form_field', 'remove_optional_text_specific_fields', 10, 4);
 function remove_optional_text_specific_fields($field, $key, $args, $value) {
@@ -49,40 +54,6 @@ function check_delivery_fields() {
     }
 }
 
-add_action('wp_footer', 'highlight_custom_checkout_errors');
-function highlight_custom_checkout_errors() {
-    if (is_checkout()) : ?>
-<script>
-jQuery(function($) {
-    $('form.checkout').on('checkout_place_order', function() {
-        // Remove previous highlights
-        $('#delivery_address, #delivery_area, #delivery_village').removeClass(
-            'validate-error');
-    });
-
-    $(document.body).on('checkout_error', function() {
-        // If delivery type is selected, then highlight missing fields
-        if ($('#delivery_type').val() === 'delivery') {
-            if (!$('#delivery_address').val()) {
-                $('#delivery_address').addClass('validate-error');
-            }
-            if (!$('#delivery_area').val()) {
-                $('#delivery_area').addClass('validate-error');
-            }
-            if (!$('#delivery_village').val()) {
-                $('#delivery_village').addClass('validate-error');
-            }
-        }
-    });
-});
-</script>
-<style>
-.validate-error {
-    border-color: #dc3545 !important;
-}
-</style>
-<?php endif;
-}
 
 
 
