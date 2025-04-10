@@ -24,20 +24,9 @@ include_once 'includes/add_checkout_fields.php';
 
 /**
  * @since 1.0.0
- * include all error handler for checkout fields
+ * include all error handler and validation for checkout fields
  */
-include_once 'includes/chackout-error-handler.php';
-
-add_filter('woocommerce_form_field', 'remove_optional_text_specific_fields', 10, 4);
-function remove_optional_text_specific_fields($field, $key, $args, $value) {
-    $custom_fields = ['delivery_address', 'delivery_area','delivery_village'];
-    if (in_array($key, $custom_fields) && !$args['required']) {
-        $field = str_replace('(optional)', '<span style="color: red;">*</span>', $field);
-    }
-    return $field;
-}
-
-
+include_once 'includes/checkout-validated-error-handler.php';
 
 
 

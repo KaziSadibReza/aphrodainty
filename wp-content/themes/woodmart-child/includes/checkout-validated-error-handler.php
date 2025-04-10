@@ -91,3 +91,16 @@ function check_delivery_fields() {
         }
     }
 }
+
+/**
+ * @since 1.0.0
+ * This function is used to add custom validation for the delivery fields.
+ */
+add_filter('woocommerce_form_field', 'remove_optional_text_specific_fields', 10, 4);
+function remove_optional_text_specific_fields($field, $key, $args, $value) {
+    $custom_fields = ['delivery_address', 'delivery_area','delivery_village'];
+    if (in_array($key, $custom_fields) && !$args['required']) {
+        $field = str_replace('(optional)', '<span style="color: red;">*</span>', $field);
+    }
+    return $field;
+}
