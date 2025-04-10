@@ -25,8 +25,16 @@ include_once 'includes/add_checkout_fields.php';
 /**
  * @since 1.0.0
  * include all error handler and validation for checkout fields
+ * @return void
  */
 include_once 'includes/checkout-validated-error-handler.php';
+
+/**
+ * @since 1.0.0
+ * include all shipping fee for checkout
+ * @return void
+ */
+include_once 'includes/checkout_shipping_fee.php';
 
 
 

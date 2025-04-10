@@ -1,6 +1,15 @@
 <?php
 defined('ABSPATH') || exit('What are doing you silly human');
 
+// Add this function before custom_override_checkout_fields
+function get_village_with_shipping_label($village_name, $village_key) {
+    global $special_shipping_villages;
+    if (isset($special_shipping_villages[$village_key])) {
+        return $village_name . ' (Delivery Fee: $' . number_format($special_shipping_villages[$village_key]) . ')';
+    }
+    return $village_name;
+}
+
 add_filter('woocommerce_checkout_fields', 'custom_override_checkout_fields');
 function custom_override_checkout_fields($fields) {
     // Make last name and email not required
@@ -55,6 +64,7 @@ function custom_override_checkout_fields($fields) {
         'clear'     => true,
         'options'   => array(
             'not_selected' => __('Select a Village', 'woocommerce')
+            // Other options will be populated via AJAX with shipping fees
         )
     );
 

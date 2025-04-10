@@ -75,6 +75,22 @@ jQuery(document).ready(function($) {
                     });
                 }
             });
+
+            $('#delivery_village').on('change', function() {
+                let village = $(this).val();
+
+                $.ajax({
+                    url: woodmart_settings.ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'store_village',
+                        village: village
+                    },
+                    success: function() {
+                        $('body').trigger('update_checkout');
+                    }
+                });
+            });
         }
     });
 

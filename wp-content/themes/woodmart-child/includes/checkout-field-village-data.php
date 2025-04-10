@@ -10,6 +10,7 @@ add_action('wp_ajax_get_villages', 'get_villages_by_area');
 add_action('wp_ajax_nopriv_get_villages', 'get_villages_by_area');
 
 function get_villages_by_area() {
+    global $special_shipping_villages;
     $area = $_POST['area'];
     $villages = array();
     
@@ -249,6 +250,13 @@ function get_villages_by_area() {
                 );
                 break;                
 
+    }
+
+    // Modify villages array to include shipping fees
+    foreach ($villages as $key => $value) {
+        if (isset($special_shipping_villages[$key])) {
+            $villages[$key] = $value . ' (Delivery Fee: $' . number_format($special_shipping_villages[$key]) . ')';
+        }
     }
 
     wp_send_json($villages);
