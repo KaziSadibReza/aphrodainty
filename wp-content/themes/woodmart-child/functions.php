@@ -38,22 +38,6 @@ function remove_optional_text_specific_fields($field, $key, $args, $value) {
 }
 
 
-// Add validation for delivery fields
-add_action('woocommerce_checkout_process', 'check_delivery_fields');
-function check_delivery_fields() {
-    if ($_POST['delivery_type'] === 'delivery') {
-        if (empty($_POST['delivery_address'])) {
-            wc_add_notice(__('Please enter your delivery address.'), 'error');
-        }
-        if (empty($_POST['delivery_area'])) {
-            wc_add_notice(__('Please select your delivery area.'), 'error');
-        }
-        if (empty($_POST['delivery_village'])) {
-            wc_add_notice(__('Please select your Village.'), 'error');
-        }
-    }
-}
-
 
 
 
