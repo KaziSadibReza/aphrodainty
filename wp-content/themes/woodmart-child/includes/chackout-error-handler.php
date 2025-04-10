@@ -79,14 +79,14 @@ add_action('woocommerce_checkout_process', 'check_delivery_fields');
 function check_delivery_fields() {
     if ($_POST['delivery_type'] === 'delivery') {
         if (empty($_POST['delivery_address'])) {
-            wc_add_notice(__('Please enter your delivery address.'), 'error');
+            wc_add_notice('<a href="#delivery_address_field">' . __('Please enter your delivery address.') . '</a>', 'error');
         }
         if (($_POST['delivery_area'] === 'not_selected') || ($_POST['delivery_area'] === '')) {
-            wc_add_notice(__('Please select your delivery area.'), 'error');
+            wc_add_notice('<a href="#delivery_area_field">' . __('Please select your delivery area.') . '</a>', 'error');
         }
         if ($_POST['delivery_area'] !== 'not_selected') {        
             if ($_POST['delivery_village'] === 'not_selected' || $_POST['delivery_village'] === '') {
-            wc_add_notice(__('Please select your village.'), 'error');
+                wc_add_notice('<a href="#delivery_village_field">' . __('Please select your village.') . '</a>', 'error');
             }
         }
     }
