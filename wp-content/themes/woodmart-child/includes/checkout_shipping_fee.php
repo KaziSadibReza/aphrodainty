@@ -172,6 +172,12 @@ function add_custom_shipping_fee() {
         return;
     }
 
+    // Check delivery type first
+    $delivery_type = isset($_POST['delivery_type']) ? $_POST['delivery_type'] : WC()->session->get('delivery_type');
+    if ($delivery_type === 'pickup') {
+        return; // Exit if pickup is selected
+    }
+
     // Get selected village from session or POST
     $selected_village = WC()->session->get('selected_village');
     if (isset($_POST['village'])) {
@@ -195,6 +201,19 @@ function store_village_in_session() {
         WC()->session->set('selected_village', $village);
         // Also store in transient as backup
         set_transient('temp_village_' . get_current_user_id(), $village, HOUR_IN_SECONDS);
+        wp_send_json_success();
+    }
+    wp_send_json_error();
+}
+
+// Add new action to store delivery type in session
+add_action('wp_ajax_store_delivery_type', 'store_delivery_type_in_session');
+add_action('wp_ajax_nopriv_store_delivery_type', 'store_delivery_type_in_session');
+
+function store_delivery_type_in_session() {
+    if (isset($_POST['delivery_type'])) {
+        $delivery_type = sanitize_text_field($_POST['delivery_type']);
+        WC()->session->set('delivery_type', $delivery_type);
         wp_send_json_success();
     }
     wp_send_json_error();

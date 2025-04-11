@@ -124,7 +124,24 @@ jQuery(document).ready(function($) {
         });
     });
 
-    $('#delivery_type').on('change', toggleDeliveryFields);
+    $('#delivery_type').on('change', function() {
+        let deliveryType = $(this).val();
+
+        // Store delivery type and update checkout
+        $.ajax({
+            url: woodmart_settings.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'store_delivery_type',
+                delivery_type: deliveryType
+            },
+            success: function() {
+                $(document.body).trigger('update_checkout');
+            }
+        });
+
+        toggleDeliveryFields();
+    });
     toggleDeliveryFields(); // Run on page load
 });
 </script>
