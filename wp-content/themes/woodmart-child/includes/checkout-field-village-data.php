@@ -80,6 +80,7 @@ function get_villages_by_area() {
                 'vryheids_lust' => 'Vryheid’s Lust',
                 'brothers' => 'Brothers',
                 'montrose' => 'Montrose',
+                'montrose_ecd' => 'Montrose (East Coast)',
                 'atlantic_gardens' => 'Atlantic Gardens',
                 'happy_acres' => 'Happy Acres',
                 'felicity' => 'Felicity',
@@ -113,7 +114,7 @@ function get_villages_by_area() {
                 'logwood' => 'Logwood',
                 'enmore' => 'Enmore',
                 'haslington' => 'Haslington',
-                'golden_grove' => 'Golden Grove'
+                'golden_grove_ecd' => 'Golden Grove (East Coast)'
             );
             break;
 
@@ -142,12 +143,14 @@ function get_villages_by_area() {
                 'mocha' => 'Mocha',
                 'herstelling' => 'Herstelling',
                 'farm' => 'Farm',
+                'farm_ebd' => 'Farm (East Bank)',
+                'montrose_ebd' => 'Montrose (East Bank)',
+                'golden_grove_ebd' => 'Golden Grove (East Bank)',
                 'vreed_en_rust' => 'Vreed en Rust',
                 'covent_garden' => 'Covent Garden',
                 'prospect' => 'Prospect',
                 'little_diamond' => 'Little Diamond',
                 'great_diamond' => 'Great Diamond',
-                'golden_grove' => 'Golden Grove',
                 'good_success' => 'Good Success',
                 'craig' => 'Craig',
                 'new_hope' => 'New Hope',
@@ -206,6 +209,7 @@ function get_villages_by_area() {
                 'goodhope' => 'Goodhope',
                 'ruby' => 'Ruby',
                 'farm' => 'Farm',
+                'farm_wcd' => 'Farm (West Coast)',
                 'le_destin' => 'Le Destin',
                 'organgestein' => 'Organgestein',
                 'bushy_park' => 'Bushy Park',
@@ -213,41 +217,43 @@ function get_villages_by_area() {
                 'parika' => 'Parika'
             );
             break;
-            case 'west_bank': 
-                $villages = array(
-                    'pouderoyen' => 'Pouderoyen',
-                    'phoentz_town' => 'Phoentz Town',
-                    'killarney' => 'Killarney',
-                    'saint_patricks' => 'Saint Patricks',
-                    'phoenix_park' => 'Phoenix Park',
-                    'shamrock_manor' => 'Shamrock Manor',
-                    'kashmir' => 'Kashmir',
-                    'malgre_tout' => 'Malgre Tout',
-                    'versailles' => 'Versailles',
-                    'goed_fortuin' => 'Goed Fortuin',
-                    'schoonord' => 'Schoonord',
-                    'meer_zorgen' => 'Meer Zorgen',
-                    'joe_vieira_park' => 'Joe Vieira Park',
-                    'over_demerara_harbour_bridge' => 'Over Demerara Harbour Bridge',
-                    'la_grange' => 'La Grange',
-                    'number_one_canal' => 'Number One Canal',
-                    'mindenburg' => 'Mindenburg',
-                    'bagotville' => 'Bagotville',
-                    'la_parfaite_harmony' => 'La Parfaite Harmony',
-                    'west_minister' => 'West Minister',
-                    'nismes' => 'Nismes',
-                    'toevlugt' => 'Toevlugt',
-                    'la_retraite' => 'La Retraite',
-                    'stanleytown' => 'Stanleytown',
-                    'number_two_canal' => 'Number Two Canal',
-                    'belle_vue' => 'Belle Vue',
-                    'good_intent' => 'Good Intent',
-                    'sisters' => 'Sisters',
-                    'goedverwagting' => 'Goedverwagting',
-                    'wales_estates' => 'Wales Estates',
-                    'patentia' => 'Patentia'
-                );
-                break;                
+            
+        case 'west_bank': 
+            $villages = array(
+                'pouderoyen' => 'Pouderoyen',
+                'phoentz_town' => 'Phoentz Town',
+                'killarney' => 'Killarney',
+                'saint_patricks' => 'Saint Patricks',
+                'phoenix_park' => 'Phoenix Park',
+                'shamrock_manor' => 'Shamrock Manor',
+                'kashmir' => 'Kashmir',
+                'malgre_tout' => 'Malgre Tout',
+                'versailles' => 'Versailles',
+                'goed_fortuin' => 'Goed Fortuin',
+                'schoonord' => 'Schoonord',
+                'meer_zorgen' => 'Meer Zorgen',
+                'joe_vieira_park' => 'Joe Vieira Park',
+                'over_demerara_harbour_bridge' => 'Over Demerara Harbour Bridge',
+                'la_grange' => 'La Grange',
+                'number_one_canal' => 'Number One Canal',
+                'mindenburg' => 'Mindenburg',
+                'bagotville' => 'Bagotville',
+                'la_parfaite_harmony' => 'La Parfaite Harmony',
+                'west_minister' => 'West Minister',
+                'nismes' => 'Nismes',
+                'toevlugt' => 'Toevlugt',
+                'la_retraite' => 'La Retraite',
+                'stanleytown' => 'Stanleytown',
+                'number_two_canal' => 'Number Two Canal',
+                'belle_vue' => 'Belle Vue',
+                'good_intent' => 'Good Intent',
+                'sisters' => 'Sisters',
+                'goedverwagting' => 'Goedverwagting',
+                'wales_estates' => 'Wales Estates',
+                'patentia' => 'Patentia',
+                'farm_wbd' => 'Farm (West Bank)'
+            );
+            break;                
 
     }
 
