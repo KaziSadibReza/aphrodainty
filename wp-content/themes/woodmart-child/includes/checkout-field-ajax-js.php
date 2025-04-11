@@ -43,16 +43,10 @@ jQuery(document).ready(function($) {
     $('#delivery_area').on('change', function() {
         let area = $(this).val();
         let village_select = $('#delivery_village');
+        let maxRetries = 3;
+        let retryCount = 0;
 
-        if (area === 'not_selected') {
-            $('#delivery_village_field').hide();
-            village_select.prop('required', false);
-        } else {
-            $('#delivery_village_field').show();
-            if ($('#delivery_type').val() === 'delivery') {
-                village_select.prop('required', true);
-            }
-
+        function loadVillages(savedVillage = null) {
             $.ajax({
                 type: 'POST',
                 url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -61,6 +55,12 @@ jQuery(document).ready(function($) {
                     'area': area
                 },
                 success: function(response) {
+                    if (Object.keys(response).length === 0 && retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(() => loadVillages(savedVillage), 500);
+                        return;
+                    }
+
                     village_select.empty();
                     village_select.append($('<option>', {
                         value: 'not_selected',
@@ -74,33 +74,54 @@ jQuery(document).ready(function($) {
                         }));
                     });
 
-                    // If there's a saved village value, set it after populating options
-                    <?php if (is_user_logged_in() && !empty(WC()->session->get('selected_village'))) : ?>
-                    var savedVillage =
-                        '<?php echo esc_js(WC()->session->get('selected_village')); ?>';
-                    if (savedVillage) {
+                    if (savedVillage && village_select.find(
+                            `option[value="${savedVillage}"]`).length > 0) {
                         village_select.val(savedVillage).trigger('change');
                     }
-                    <?php endif; ?>
+                },
+                error: function() {
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(() => loadVillages(savedVillage), 500);
+                    }
                 }
             });
-
-            $('#delivery_village').on('change', function() {
-                let village = $(this).val();
-
-                $.ajax({
-                    url: woodmart_settings.ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'store_village',
-                        village: village
-                    },
-                    success: function() {
-                        $('body').trigger('update_checkout');
-                    }
-                });
-            });
         }
+
+        if (area === 'not_selected') {
+            $('#delivery_village_field').hide();
+            village_select.prop('required', false);
+        } else {
+            $('#delivery_village_field').show();
+            if ($('#delivery_type').val() === 'delivery') {
+                village_select.prop('required', true);
+            }
+
+            <?php if (is_user_logged_in()): ?>
+            let savedVillage = '<?php echo esc_js(WC()->session->get('selected_village')); ?>';
+            loadVillages(savedVillage);
+            <?php else: ?>
+            loadVillages();
+            <?php endif; ?>
+        }
+    });
+
+    $('#delivery_village').on('click', function() {
+        let village = $(this).val();
+
+        $.ajax({
+            url: woodmart_settings.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'store_village',
+                village: village
+            },
+            success: function(response) {
+                // Force cart and checkout update
+                $(document.body).trigger('update_checkout');
+                $(document.body).trigger('wc_update_cart');
+            }
+        });
     });
 
     $('#delivery_type').on('change', toggleDeliveryFields);

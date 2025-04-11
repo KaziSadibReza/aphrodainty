@@ -193,6 +193,8 @@ function store_village_in_session() {
     if (isset($_POST['village'])) {
         $village = sanitize_text_field($_POST['village']);
         WC()->session->set('selected_village', $village);
+        // Also store in transient as backup
+        set_transient('temp_village_' . get_current_user_id(), $village, HOUR_IN_SECONDS);
         wp_send_json_success();
     }
     wp_send_json_error();
@@ -204,10 +206,17 @@ add_action('init', 'clear_village_session');
 function clear_village_session() {
     if (!is_admin() && !wp_doing_ajax() && WC()->session) {
         $user_id = get_current_user_id();
-        $user_village = get_user_meta($user_id, 'delivery_fields', true);
-        
-        if (empty($user_village['delivery_village'])) {
-            WC()->session->set('selected_village', null);
+        if (is_user_logged_in()) {
+            $delivery_fields = get_user_meta($user_id, 'delivery_fields', true);
+            $temp_village = get_transient('temp_village_' . $user_id);
+            
+            if (!empty($delivery_fields['delivery_village'])) {
+                WC()->session->set('selected_village', $delivery_fields['delivery_village']);
+            } elseif ($temp_village) {
+                WC()->session->set('selected_village', $temp_village);
+            } else {
+                WC()->session->set('selected_village', null);
+            }
         }
     }
 }
