@@ -197,3 +197,17 @@ function store_village_in_session() {
     }
     wp_send_json_error();
 }
+
+// Clear village session if user meta doesn't have village data
+add_action('init', 'clear_village_session');
+
+function clear_village_session() {
+    if (!is_admin() && !wp_doing_ajax() && WC()->session) {
+        $user_id = get_current_user_id();
+        $user_village = get_user_meta($user_id, 'delivery_fields', true);
+        
+        if (empty($user_village['delivery_village'])) {
+            WC()->session->set('selected_village', null);
+        }
+    }
+}

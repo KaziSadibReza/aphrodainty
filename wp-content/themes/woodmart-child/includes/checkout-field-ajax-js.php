@@ -73,6 +73,15 @@ jQuery(document).ready(function($) {
                             text: value
                         }));
                     });
+
+                    // If there's a saved village value, set it after populating options
+                    <?php if (is_user_logged_in() && !empty(WC()->session->get('selected_village'))) : ?>
+                    var savedVillage =
+                        '<?php echo esc_js(WC()->session->get('selected_village')); ?>';
+                    if (savedVillage) {
+                        village_select.val(savedVillage).trigger('change');
+                    }
+                    <?php endif; ?>
                 }
             });
 
@@ -105,4 +114,4 @@ jQuery(document).ready(function($) {
  * This function is used to get the village field data based on the selected area.
  * It get and returns the village data from the array in the file 
  */
-include_once 'checkout-field-village-data.php'; 
+include_once 'checkout-field-village-data.php';
