@@ -68,6 +68,32 @@ function custom_override_checkout_fields($fields) {
         )
     );
 
+    // Add pickup location field
+    $fields['billing']['pickup_location'] = array(
+        'type'      => 'select',
+        'label'     => __('Pickup Location', 'woocommerce'),
+        'required'  => false,
+        'class'     => array('form-row-wide', 'pickup-field'),
+        'clear'     => true,
+        'options'   => array(
+            'not_selected' => __('Select a Pickup Location', 'woocommerce'),
+            'aphrodainty_store'   => __('Aphrodainty Store', 'woocommerce'),
+        )
+    );
+    
+    // Add pickup date field with date range
+    $fields['billing']['pickup_date'] = array(
+        'type'      => 'date',
+        'label'     => __('Pickup Date', 'woocommerce'),
+        'required'  => false,
+        'class'     => array('form-row-wide', 'pickup-field'),
+        'clear'     => true,
+        'custom_attributes' => array(
+            'min' => date('Y-m-d'), // Today's date as minimum
+            'max' => date('Y-m-d', strtotime('+30 days')), // 30 days from today as maximum
+        )
+    );
+
     
     // Remove existing fields
     unset($fields['billing']['billing_company']);

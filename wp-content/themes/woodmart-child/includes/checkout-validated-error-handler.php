@@ -15,6 +15,8 @@ function highlight_custom_checkout_errors() {
         if (is_user_logged_in()) {
             $user_id = get_current_user_id();
             $delivery_fields = get_user_meta($user_id, 'delivery_fields', true);
+        } else {
+            $delivery_fields = WC()->session ? WC()->session->get('guest_delivery_fields') : [];
         }
 ?>
 <script>
@@ -39,6 +41,13 @@ jQuery(function($) {
                 '<?php echo esc_js($delivery_fields['delivery_village']); ?>').trigger(
                 'change');
         }, 1000); // Increased delay to ensure AJAX completes
+
+        if ('<?php echo isset($delivery_fields['pickup_location']); ?>') {
+            $('#pickup_location').val('<?php echo esc_js($delivery_fields['pickup_location']); ?>');
+        }
+        if ('<?php echo isset($delivery_fields['pickup_date']); ?>') {
+            $('#pickup_date').val('<?php echo esc_js($delivery_fields['pickup_date']); ?>');
+        }
     });
     <?php endif; ?>
 
@@ -49,50 +58,75 @@ jQuery(function($) {
     });
 
     // Real-time validation on blur
-    $('#delivery_address, #delivery_area, #delivery_village').on('blur', function() {
-        const deliveryType = $('#delivery_type').val();
-        const $field = $(this);
-        const fieldId = $field.attr('id');
-
-        if (deliveryType === 'delivery') {
+    // Add any new field IDs here in the jQuery selector
+    $('#delivery_address, #delivery_area, #delivery_village, #pickup_location, #pickup_date').on('blur',
+        function() {
+            const $field = $(this);
+            const fieldId = $field.attr('id');
+            const deliveryType = $('#delivery_type').val();
             const value = $field.val();
 
-            if (fieldId === 'delivery_address') {
-                if (!value) {
-                    $('#delivery_address_field').addClass(
-                        'woocommerce-invalid woocommerce-invalid-required-field');
-                } else {
-                    $('#delivery_address_field').removeClass(
-                        'woocommerce-invalid woocommerce-invalid-required-field');
+            // Validation rules object - Add new rules here
+            const validationRules = {
+                delivery: {
+                    delivery_address: value => value !== '',
+                    delivery_area: value => value !== 'not_selected',
+                    delivery_village: value => value !== 'not_selected'
+                    // Add new delivery fields here like:
+                    // delivery_phone: value => value.length >= 10,
+                    // delivery_instructions: value => value.length > 0
+                },
+                pickup: {
+                    pickup_location: value => value !== 'not_selected',
+                    pickup_date: value => value !== ''
+                    // Add new pickup fields here like:
+                    // pickup_time: value => value !== '',
+                    // pickup_notes: value => value.length > 0
                 }
-            } else if (fieldId === 'delivery_area' || fieldId === 'delivery_village') {
-                if (value === 'not_selected') {
-                    $(`#${fieldId}_field`).addClass(
-                        'woocommerce-invalid woocommerce-invalid-required-field');
-                } else {
-                    $(`#${fieldId}_field`).removeClass(
-                        'woocommerce-invalid woocommerce-invalid-required-field');
-                }
-            }
-        }
-    });
+                // Add new delivery types here like:
+                // express: {
+                //     express_address: value => value !== '',
+                //     express_time: value => value !== ''
+                // }
+            };
 
+            if (validationRules[deliveryType] && validationRules[deliveryType][fieldId]) {
+                handleValidation(
+                    `#${fieldId}_field`,
+                    validationRules[deliveryType][fieldId](value)
+                );
+            }
+        });
+
+    function handleValidation(fieldSelector, isValid) {
+        if (isValid) {
+            $(fieldSelector).removeClass('woocommerce-invalid woocommerce-invalid-required-field');
+        } else {
+            $(fieldSelector).addClass('woocommerce-invalid woocommerce-invalid-required-field');
+        }
+    }
     // Validate fields on checkout error
     $(document.body).on('checkout_error', function() {
-        if ($('#delivery_type').val() === 'delivery') {
-            if (!$('#delivery_address').val()) {
-                $('#delivery_address_field').addClass(
+        const fields = {
+            delivery: {
+                delivery_address: value => value !== '',
+                delivery_area: value => value !== 'not_selected',
+                delivery_village: value => value !== 'not_selected'
+            },
+            pickup: {
+                pickup_location: value => value !== 'not_selected' && value !== '',
+                pickup_date: value => value !== ''
+            }
+        };
+
+        const deliveryType = $('#delivery_type').val();
+        Object.keys(fields[deliveryType] || {}).forEach(fieldId => {
+            const value = $(`#${fieldId}`).val();
+            if (!fields[deliveryType][fieldId](value)) {
+                $(`#${fieldId}_field`).addClass(
                     'woocommerce-invalid woocommerce-invalid-required-field');
             }
-            if ($('#delivery_area').val() === 'not_selected') {
-                $('#delivery_area_field').addClass(
-                    'woocommerce-invalid woocommerce-invalid-required-field');
-            }
-            if ($('#delivery_village').val() === 'not_selected') {
-                $('#delivery_village_field').addClass(
-                    'woocommerce-invalid woocommerce-invalid-required-field');
-            }
-        }
+        });
     });
 
 });
@@ -106,29 +140,50 @@ jQuery(function($) {
  */
 add_action('woocommerce_checkout_process', 'check_delivery_fields');
 function check_delivery_fields() {
-    if ($_POST['delivery_type'] === 'delivery') {
-        if (empty($_POST['delivery_address'])) {
-            wc_add_notice('<a href="#delivery_address_field">' . __('Please enter your delivery address.') . '</a>', 'error');
-        }
-        if (($_POST['delivery_area'] === 'not_selected') || ($_POST['delivery_area'] === '')) {
-            wc_add_notice('<a href="#delivery_area_field">' . __('Please select your delivery area.') . '</a>', 'error');
-        }
-        if ($_POST['delivery_area'] !== 'not_selected') {        
-            if ($_POST['delivery_village'] === 'not_selected' || $_POST['delivery_village'] === '') {
-                wc_add_notice('<a href="#delivery_village_field">' . __('Please select your village.') . '</a>', 'error');
+    $validation_rules = [
+        'delivery' => [
+            'delivery_address' => ['not_empty', 'Please enter your delivery address.'],
+            'delivery_area' => ['not_selected', 'Please select your delivery area.'],
+            'delivery_village' => ['not_selected', 'Please select your village.']
+        ],
+        'pickup' => [
+            'pickup_location' => ['not_selected', 'Please select your pickup location.'],
+            'pickup_date' => ['not_empty', 'Please select your pickup date.']
+        ]
+    ];
+
+    $delivery_type = $_POST['delivery_type'];
+    if (isset($validation_rules[$delivery_type])) {
+        foreach ($validation_rules[$delivery_type] as $field => $rule) {
+            $value = $_POST[$field] ?? '';
+            $is_invalid = ($rule[0] === 'not_selected' && ($value === 'not_selected' || $value === '')) ||
+                         ($rule[0] === 'not_empty' && empty($value));
+            
+            if ($is_invalid) {
+                wc_add_notice("<a href='#{$field}_field'>{$rule[1]}</a>", 'error');
             }
         }
     }
 
     // save the custom field value to user meta
+    // For logged in users, save to user meta
     if (is_user_logged_in()) {
         $user_id = get_current_user_id();
-        update_user_meta($user_id, 'delivery_fields', [
-            'delivery_type' => sanitize_text_field($_POST['delivery_type']),
-            'delivery_address' => sanitize_text_field($_POST['delivery_address']),
-            'delivery_area' => sanitize_text_field($_POST['delivery_area']),
-            'delivery_village' => sanitize_text_field($_POST['delivery_village'])
-        ]);
+        $fields_to_save = ['delivery_type', 'delivery_address', 'delivery_area', 'delivery_village', 'pickup_location', 'pickup_date'];
+        $delivery_fields = array_reduce($fields_to_save, function($acc, $field) {
+            $acc[$field] = sanitize_text_field($_POST[$field] ?? '');
+            return $acc;
+        }, []);
+        update_user_meta($user_id, 'delivery_fields', $delivery_fields);
+    } 
+    // For guest users, save to WooCommerce session
+    else {
+        $fields_to_save = ['delivery_type', 'delivery_address', 'delivery_area', 'delivery_village', 'pickup_location', 'pickup_date'];
+        $delivery_fields = array_reduce($fields_to_save, function($acc, $field) {
+            $acc[$field] = sanitize_text_field($_POST[$field] ?? '');
+            return $acc;
+        }, []);
+        WC()->session->set('guest_delivery_fields', $delivery_fields);
     }
 
 }
@@ -141,7 +196,7 @@ function check_delivery_fields() {
  */
 add_filter('woocommerce_form_field', 'remove_optional_text_specific_fields', 10, 4);
 function remove_optional_text_specific_fields($field, $key, $args, $value) {
-    $custom_fields = ['delivery_address', 'delivery_area','delivery_village'];
+    $custom_fields = ['delivery_address', 'delivery_area','delivery_village', 'pickup_location', 'pickup_date'];
     if (in_array($key, $custom_fields) && !$args['required']) {
         $field = str_replace('(optional)', '<span style="color: red;">*</span>', $field);
     }

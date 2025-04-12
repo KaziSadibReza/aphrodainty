@@ -21,13 +21,27 @@ jQuery(document).ready(function($) {
     function toggleDeliveryFields() {
         // Show or hide delivery fields based on the selected delivery type
         let deliveryType = $('#delivery_type').val();
-        if (deliveryType === 'delivery') {
-            $('.delivery-field').show();
-            $('#delivery_address, #delivery_area').prop('required', true);
-        } else {
-            $('.delivery-field').hide();
-            $('#delivery_address, #delivery_area, #delivery_village').prop('required', false);
-        }
+
+        const fieldGroups = {
+            'delivery': {
+                show: '.delivery-field',
+                required: '#delivery_address, #delivery_area'
+            },
+            'pickup': {
+                show: '.pickup-field',
+                required: '#pickup_location, #pickup_date'
+            }
+        };
+
+        Object.entries(fieldGroups).forEach(([type, config]) => {
+            if (deliveryType === type) {
+                $(config.show).show();
+                $(config.required).prop('required', true);
+            } else {
+                $(config.show).hide();
+                $(config.required).prop('required', false);
+            }
+        });
 
         // Hide the village field if the Area is not selected
         if ($('#delivery_area').val() === 'not_selected') {
@@ -45,6 +59,12 @@ jQuery(document).ready(function($) {
         let village_select = $('#delivery_village');
         let maxRetries = 3;
         let retryCount = 0;
+
+        // Only proceed if delivery type is 'delivery'
+        if ($('#delivery_type').val() !== 'delivery') {
+            $('#delivery_village_field').hide();
+            return;
+        }
 
         function loadVillages(savedVillage = null) {
             $.ajax({
