@@ -54,8 +54,8 @@ jQuery(document).ready(function($) {
      * This function is used to show or hide the village field based on the selected area.
      * It sends an AJAX request to the server and updates the village dropdown.
      */
-    $('#delivery_area').on('change', function() {
-        let area = $(this).val();
+    function handleDeliveryAreaChange() {
+        let area = $('#delivery_area').val();
         let village_select = $('#delivery_village');
         let maxRetries = 3;
         let retryCount = 0;
@@ -124,6 +124,11 @@ jQuery(document).ready(function($) {
             loadVillages();
             <?php endif; ?>
         }
+    }
+
+    $('#delivery_area').on('change', handleDeliveryAreaChange);
+    $('#delivery_type').on('change', function() {
+        handleDeliveryAreaChange();
     });
 
     $('#delivery_village').on('click', function() {
