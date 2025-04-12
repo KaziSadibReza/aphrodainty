@@ -248,3 +248,128 @@ function display_delivery_info_in_order_preview() {
     <# } #>
         <?php
 }
+
+/**
+ * @since 1.0.0
+ * Add delivery information to thank you page
+ * * @param int $order_id
+ * @return void
+ */
+add_action('woocommerce_thankyou', 'display_delivery_info_on_thankyou', 10, 1);
+function display_delivery_info_on_thankyou($order_id) {
+    $order = wc_get_order($order_id);
+    if (!$order) return;
+
+    // Location label mappings (reuse existing array)
+    $location_labels = [
+        'areas' => [
+            'georgetown'   => 'Georgetown',
+            'east_coast'   => 'East Coast Demerara',
+            'east_bank'    => 'East Bank Demerara',
+            'west_coast'   => 'West Coast Demerara',
+            'west_bank'    => 'West Bank Demerara'
+        ],
+        'pickup' => [
+            'nike_store'   => 'Nike Store - Georgetown',
+            'adidas_store' => 'Adidas Store - East Bank',
+            'puma_store'   => 'Puma Store - West Bank'
+        ]
+    ];
+
+    $delivery_type = $order->get_meta('delivery_type');
+    $delivery_type_clean = ucwords(str_replace('_', ' ', $delivery_type));
+
+    echo '<section class="woocommerce-delivery-info">';
+    echo '<h2>Delivery Information</h2>';
+    echo '<p class="woocommerce-customer-details--"><strong>Delivery Type:</strong> ' . esc_html($delivery_type_clean) . '</p>';
+
+    if ($delivery_type === 'delivery') {
+        $area_key = $order->get_meta('delivery_area');
+        $area_label = $location_labels['areas'][$area_key] ?? ucwords(str_replace('_', ' ', $area_key));
+        $village = ucwords(str_replace('_', ' ', $order->get_meta('delivery_village')));
+
+        
+        echo '<p class="woocommerce-customer-details--"><strong>Delivery Address:</strong> ' . esc_html($order->get_meta('delivery_address')) . '</p>';
+        echo '<p class="woocommerce-customer-details--"><strong>Delivery Area:</strong> ' . esc_html($area_label) . '</p>';
+        echo '<p class="woocommerce-customer-details--"><strong>Village:</strong> ' . esc_html($village) . '</p>';
+    }
+
+    if ($delivery_type === 'pickup') {
+        $location_key = $order->get_meta('pickup_location');
+        $location_label = $location_labels['pickup'][$location_key] ?? ucwords(str_replace('_', ' ', $location_key));
+        
+        echo '<p><strong>Pickup Location:</strong> ' . esc_html($location_label) . '</p>';
+        echo '<p><strong>Pickup Date:</strong> ' . esc_html($order->get_meta('pickup_date')) . '</p>';
+    }
+    echo '</section>';
+}
+
+/**
+ * Add delivery information to order email
+ */
+add_action('woocommerce_email_after_order_table', 'add_delivery_info_to_emails', 10, 4);
+function add_delivery_info_to_emails($order, $sent_to_admin, $plain_text, $email) {
+    if (!$order) return;
+
+    $location_labels = [
+        'areas' => [
+            'georgetown'   => 'Georgetown',
+            'east_coast'   => 'East Coast Demerara',
+            'east_bank'    => 'East Bank Demerara',
+            'west_coast'   => 'West Coast Demerara',
+            'west_bank'    => 'West Bank Demerara'
+        ],
+        'pickup' => [
+            'nike_store'   => 'Nike Store - Georgetown',
+            'adidas_store' => 'Adidas Store - East Bank',
+            'puma_store'   => 'Puma Store - West Bank'
+        ]
+    ];
+
+    $delivery_type = $order->get_meta('delivery_type');
+    $delivery_type_clean = ucwords(str_replace('_', ' ', $delivery_type));
+
+    if ($plain_text) {
+        echo "\nDelivery Information\n\n";
+        echo "Delivery Type: " . $delivery_type_clean . "\n";
+
+        if ($delivery_type === 'delivery') {
+            $area_key = $order->get_meta('delivery_area');
+            $area_label = $location_labels['areas'][$area_key] ?? ucwords(str_replace('_', ' ', $area_key));
+            
+            echo "Delivery Address: " . $order->get_meta('delivery_address') . "\n";
+            echo "Delivery Area: " . $area_label . "\n";
+            echo "Village: " . ucwords($order->get_meta('delivery_village')) . "\n";
+        }
+
+        if ($delivery_type === 'pickup') {
+            $location_key = $order->get_meta('pickup_location');
+            $location_label = $location_labels['pickup'][$location_key] ?? ucwords(str_replace('_', ' ', $location_key));
+            
+            echo "Pickup Location: " . $location_label . "\n";
+            echo "Pickup Date: " . $order->get_meta('pickup_date') . "\n";
+        }
+    } else {
+        echo '<h2>Delivery Information</h2>';
+        echo '<table class="td" cellspacing="0" cellpadding="6" style="width: 100%; margin-bottom: 20px;">';
+        echo '<tr><th>Delivery Type:</th><td>' . esc_html($delivery_type_clean) . '</td></tr>';
+
+        if ($delivery_type === 'delivery') {
+            $area_key = $order->get_meta('delivery_area');
+            $area_label = $location_labels['areas'][$area_key] ?? ucwords(str_replace('_', ' ', $area_key));
+            
+            echo '<tr><th>Delivery Address:</th><td>' . esc_html($order->get_meta('delivery_address')) . '</td></tr>';
+            echo '<tr><th>Delivery Area:</th><td>' . esc_html($area_label) . '</td></tr>';
+            echo '<tr><th>Village:</th><td>' . esc_html(ucwords($order->get_meta('delivery_village'))) . '</td></tr>';
+        }
+
+        if ($delivery_type === 'pickup') {
+            $location_key = $order->get_meta('pickup_location');
+            $location_label = $location_labels['pickup'][$location_key] ?? ucwords(str_replace('_', ' ', $location_key));
+            
+            echo '<tr><th>Pickup Location:</th><td>' . esc_html($location_label) . '</td></tr>';
+            echo '<tr><th>Pickup Date:</th><td>' . esc_html($order->get_meta('pickup_date')) . '</td></tr>';
+        }
+        echo '</table>';
+    }
+}
