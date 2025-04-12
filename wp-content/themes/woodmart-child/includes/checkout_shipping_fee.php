@@ -1,7 +1,13 @@
 <?php
 defined('ABSPATH') || exit('What are doing you silly human');
-
-// Define villages with special shipping rates
+/**
+ * * @since 1.0.0
+ * Add custom shipping fee / Delivery fee based on selected village
+ * Check the checkout-field-village-data.php file for the list of villages and keys
+ * Note: The village keys should match the keys used in the special_shipping_villages array
+ * If you don't add Shipping fee / Delivery fee for a village, it will be set to free by default
+ * @return void
+ */
 $special_shipping_villages = array(
     // Georgetown
     // Add Georgetown villages here if applicable

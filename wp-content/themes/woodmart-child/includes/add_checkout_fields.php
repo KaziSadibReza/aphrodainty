@@ -39,6 +39,9 @@ function custom_override_checkout_fields($fields) {
         'placeholder' => __('Lot Number & Street', 'woocommerce'),
     );
     
+    // Add delivery area field with options
+    // This field will be used to determine the village options available
+    // and will be populated via AJAX based on the selected area
     $fields['billing']['delivery_area'] = array(
         'type'      => 'select',
         'label'     => __('Area', 'woocommerce'),
@@ -52,6 +55,8 @@ function custom_override_checkout_fields($fields) {
             'east_bank'          => __('East Bank Demerara', 'woocommerce'),
             'west_coast'         => __('West Coast Demerara', 'woocommerce'),
             'west_bank'          => __('West Bank Demerara', 'woocommerce')
+            // Add more areas as needed
+            // 'area_1' => __('Area 1', 'woocommerce'),
         )
     );
     
@@ -79,6 +84,8 @@ function custom_override_checkout_fields($fields) {
             'not_selected' => __('Select a Pickup Location', 'woocommerce'),
             'small-business-hub-kitty'   => __( 'Small Business Hub - Kitty', 'woocommerce'),
             'others'               => __('Others','woocommerce')
+            // Add more pickup locations as needed
+            // 'location_1' => __('Location 1', 'woocommerce'),
         )
     );
     

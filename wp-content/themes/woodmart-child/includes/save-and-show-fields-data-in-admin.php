@@ -305,7 +305,13 @@ function display_delivery_info_on_thankyou($order_id) {
 }
 
 /**
+ * @since 1.0.0
  * Add delivery information to order email
+ * * @param WC_Order $order
+ * * @param bool $sent_to_admin
+ * * @param bool $plain_text
+ * * @param WC_Email $email
+ * @return void
  */
 add_action('woocommerce_email_after_order_table', 'add_delivery_info_to_emails', 10, 4);
 function add_delivery_info_to_emails($order, $sent_to_admin, $plain_text, $email) {

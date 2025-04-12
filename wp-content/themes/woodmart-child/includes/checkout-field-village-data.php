@@ -8,7 +8,14 @@ defined('ABSPATH') || exit('What are doing you silly human');
  */
 add_action('wp_ajax_get_villages', 'get_villages_by_area');
 add_action('wp_ajax_nopriv_get_villages', 'get_villages_by_area');
-
+/**
+ * @since 1.0.0
+ * Get villages based on the selected Area
+ * You can add more villages as needed.
+ * Make sure to write the village names and keys accordingly.
+ * case is Area name village array is village name
+ * @return void
+ */
 function get_villages_by_area() {
     $area = $_POST['area'];
     $villages = array();
