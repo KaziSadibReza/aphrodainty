@@ -188,6 +188,9 @@ function add_custom_shipping_fee() {
     if (!empty($selected_village) && isset($special_shipping_villages[$selected_village])) {
         $shipping_fee = $special_shipping_villages[$selected_village];
         WC()->cart->add_fee(__('Delivery Fee', 'woodmart-child'), $shipping_fee);
+    }else {
+        // If no special shipping fee, set to free
+        WC()->cart->add_fee(__('Delivery Fee (Free)', 'woodmart-child'), 0); // Empty string for free delivery
     }
 }
 
