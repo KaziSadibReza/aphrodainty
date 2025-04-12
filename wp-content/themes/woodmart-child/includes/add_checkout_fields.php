@@ -77,7 +77,8 @@ function custom_override_checkout_fields($fields) {
         'clear'     => true,
         'options'   => array(
             'not_selected' => __('Select a Pickup Location', 'woocommerce'),
-            'aphrodainty_store'   => __('Aphrodainty Store', 'woocommerce'),
+            'small-business-hub-kitty'   => __( 'Small Business Hub - Kitty', 'woocommerce'),
+            'others'               => __('Others','woocommerce'')
         )
     );
     
