@@ -139,3 +139,73 @@ function display_delivery_fields_in_admin($order) {
     }
     echo '</div>';
 }
+
+/**
+ * @since 1.0.0
+ * Add delivery information to order preview
+ *  * @param array $data
+ * @param WC_Order $order
+ * @return array
+ */
+add_filter('woocommerce_admin_order_preview_get_order_details', 'add_delivery_info_to_order_preview', 10, 2);
+function add_delivery_info_to_order_preview($data, $order) {
+    if (!is_a($order, 'WC_Order')) {
+        return $data;
+    }
+
+    // Get delivery information
+    $delivery_type = ucfirst($order->get_meta('delivery_type'));
+    
+    $areas = [
+        'georgetown' => 'Georgetown',
+        'east_coast' => 'East Coast Demerara',
+        'east_bank' => 'East Bank Demerara',
+        'west_coast' => 'West Coast Demerara',
+        'west_bank' => 'West Bank Demerara'
+    ];
+    
+    $delivery_area_raw = $order->get_meta('delivery_area');
+    $delivery_area = isset($areas[$delivery_area_raw]) ? $areas[$delivery_area_raw] : ucwords(str_replace('_', ' ', $delivery_area_raw));
+    
+    $delivery_village = ucwords(str_replace('_', ' ', $order->get_meta('delivery_village')));
+    $delivery_address = $order->get_meta('delivery_address');
+
+    // Add delivery information to preview data
+    $data['delivery_info'] = '';
+    if ($delivery_type) {
+        $data['delivery_info'] .= "<strong>Delivery Type:</strong> {$delivery_type}<br/>";
+        
+        if ($delivery_type === 'Delivery') {
+            if ($delivery_address) {
+                $data['delivery_info'] .= "<strong>Address:</strong> {$delivery_address}<br/>";
+            }
+            if ($delivery_area) {
+                $data['delivery_info'] .= "<strong>Area:</strong> {$delivery_area}<br/>";
+            }
+            if ($delivery_village) {
+                $data['delivery_info'] .= "<strong>Village:</strong> {$delivery_village}";
+            }
+        }
+    }
+
+    return $data;
+}
+
+/**
+ * @since 1.0.0
+ * Add delivery information to order preview template
+ * @param array $data
+ * @return void
+ * @see woocommerce/templates/admin/meta-boxes/views/html-order-preview.php
+ */
+add_action('woocommerce_admin_order_preview_start', 'display_delivery_info_in_order_preview');
+function display_delivery_info_in_order_preview() {
+    ?>
+<# if (data.delivery_info) { #>
+    <div class="wc-order-preview-delivery-info" style="padding: 1.5em 1.5em 0">
+        <h2 class="wc-order-preview-heading">Delivery Information</h2>
+        {{{ data.delivery_info }}}
+    </div>
+    <# } #>
+        <?php
+}
