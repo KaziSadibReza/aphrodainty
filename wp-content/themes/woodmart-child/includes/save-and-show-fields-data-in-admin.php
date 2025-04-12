@@ -336,10 +336,11 @@ function add_delivery_info_to_emails($order, $sent_to_admin, $plain_text, $email
         if ($delivery_type === 'delivery') {
             $area_key = $order->get_meta('delivery_area');
             $area_label = $location_labels['areas'][$area_key] ?? ucwords(str_replace('_', ' ', $area_key));
+            $village = ucwords(str_replace('_', ' ', $order->get_meta('delivery_village')));
             
             echo "Delivery Address: " . $order->get_meta('delivery_address') . "\n";
             echo "Delivery Area: " . $area_label . "\n";
-            echo "Village: " . ucwords($order->get_meta('delivery_village')) . "\n";
+            echo "Village: " . $village . "\n";
         }
 
         if ($delivery_type === 'pickup') {
@@ -357,10 +358,11 @@ function add_delivery_info_to_emails($order, $sent_to_admin, $plain_text, $email
         if ($delivery_type === 'delivery') {
             $area_key = $order->get_meta('delivery_area');
             $area_label = $location_labels['areas'][$area_key] ?? ucwords(str_replace('_', ' ', $area_key));
+            $village = ucwords(str_replace('_', ' ', $order->get_meta('delivery_village')));
             
             echo '<tr><th>Delivery Address:</th><td>' . esc_html($order->get_meta('delivery_address')) . '</td></tr>';
             echo '<tr><th>Delivery Area:</th><td>' . esc_html($area_label) . '</td></tr>';
-            echo '<tr><th>Village:</th><td>' . esc_html(ucwords($order->get_meta('delivery_village'))) . '</td></tr>';
+            echo '<tr><th>Village:</th><td>' . esc_html($village) . '</td></tr>';
         }
 
         if ($delivery_type === 'pickup') {
