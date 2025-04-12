@@ -36,24 +36,106 @@ include_once 'includes/checkout-validated-error-handler.php';
  */
 include_once 'includes/checkout_shipping_fee.php';
 
+/**
+ * @since 
+ * Save field data to order meta
+ * @param WC_Order $order
+ * @param array $data
+ */
+remove_action('woocommerce_checkout_update_order_meta', 'save_delivery_type_field');
+add_action('woocommerce_checkout_create_order', 'save_delivery_type_field', 10, 2);
 
-
-// Save the new fields
-add_action('woocommerce_checkout_update_order_meta', 'save_delivery_type_field');
-function save_delivery_type_field($order_id) {
-    if (!empty($_POST['delivery_type'])) {
-
-        update_post_meta($order_id, 'delivery_type', sanitize_text_field($_POST['delivery_type']));
-        
-        if (!empty($_POST['delivery_address'])) {
-            update_post_meta($order_id, 'delivery_address', sanitize_text_field($_POST['delivery_address']));
-        }
-        if (!empty($_POST['delivery_area'])) {
-            update_post_meta($order_id, 'delivery_area', sanitize_text_field($_POST['delivery_area']));
-        }
-        if (!empty($_POST['delivery_village'])) {
-            update_post_meta($order_id, 'delivery_village', sanitize_text_field($_POST['delivery_village']));
-        }
+function save_delivery_type_field($order, $data) {
+    if (!is_a($order, 'WC_Order')) {
+        error_log('Error: Invalid order object');
+        return;
     }
 
+    // Always save delivery_type
+    if (isset($_POST['delivery_type'])) {
+        $delivery_type = sanitize_text_field($_POST['delivery_type']);
+        $order->update_meta_data('delivery_type', $delivery_type);
+    }
+
+    // Only save other fields if delivery_type is 'delivery'
+    if (isset($_POST['delivery_type']) && $_POST['delivery_type'] === 'delivery') {
+        $fields = [
+            'delivery_address',
+            'delivery_area',
+            'delivery_village'
+        ];
+
+        foreach ($fields as $field) {
+            if (isset($_POST[$field])) {
+                $value = sanitize_text_field($_POST[$field]);
+                $order->update_meta_data($field, $value);
+            }
+        }
+    }
+    
+    $order->save();
+}
+
+/**
+ * Display delivery fields in billing address with debug info
+ * @param WC_Order $order
+ */
+add_action('woocommerce_admin_order_data_after_billing_address', 'display_delivery_fields_in_admin');
+function display_delivery_fields_in_admin($order) {
+    if (!is_a($order, 'WC_Order')) {
+        return;
+    }
+
+    $order_id = $order->get_id();
+    
+    // Format delivery area and type
+    $delivery_type_raw = $order->get_meta('delivery_type');
+    $delivery_area_raw = $order->get_meta('delivery_area');
+    $delivery_village_raw = $order->get_meta('delivery_village');
+    
+    // Convert delivery type
+    $delivery_type = ucfirst($delivery_type_raw);
+    
+    // Convert area
+    $areas = [
+        'georgetown' => 'Georgetown',
+        'east_coast' => 'East Coast Demerara',
+        'east_bank' => 'East Bank Demerara',
+        'west_coast' => 'West Coast Demerara',
+        'west_bank' => 'West Bank Demerara'
+    ];
+    $delivery_area = isset($areas[$delivery_area_raw]) ? $areas[$delivery_area_raw] : ucwords(str_replace('_', ' ', $delivery_area_raw));
+    
+    // Convert village
+    $delivery_village = ucwords(str_replace('_', ' ', $delivery_village_raw));
+    
+    // Display delivery information
+    $fields = [
+        'delivery_type' => [
+            'label' => __('Delivery Type'),
+            'value' => $delivery_type
+        ],
+        'delivery_address' => [
+            'label' => __('Delivery Address'),
+            'value' => $order->get_meta('delivery_address')
+        ],
+        'delivery_area' => [
+            'label' => __('Delivery Area'),
+            'value' => $delivery_area
+        ],
+        'delivery_village' => [
+            'label' => __('Delivery Village'),
+            'value' => $delivery_village
+        ]
+    ];
+
+    echo '<div class="delivery-details" style="margin-top: 10px; padding: 10px; border: 1px solid #ccc;">';
+    echo '<h3>' . __('Delivery Information') . '</h3>';
+    
+    foreach ($fields as $key => $data) {
+        if (!empty($data['value'])) {
+            echo '<p><strong>' . $data['label'] . ':</strong> ' . esc_html($data['value']) . '</p>';
+        }
+    }
+    echo '</div>';
 }
